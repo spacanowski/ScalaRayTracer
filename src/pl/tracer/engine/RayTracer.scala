@@ -79,6 +79,15 @@ class RayTracer(camera: Camera, sphereList: List[Sphere], lightList: List[Light]
       calculatePixelColor(green, light.color.g, sphereColor.g, specular, dotProduct),
       calculatePixelColor(blue, light.color.b, sphereColor.b, specular, dotProduct))
   }
+  
+  /*
+  def calculateLightColorComponent(lightList: List[Light], currentSphereIndex: Int, sphereColor: Color,
+	cutPoint: Point, normalInPoint: Vector, r: Double, g: Double, b: Double): (Double, Double, Double) =
+		if (lightList.isEmpty) (r, g, b)
+		else {val (newRed, newGreen, newBlue) = calculateColorsFromEfects(currentSphereIndex, sphereColor, lightList.head, cutPoint,
+			normalInPoint, iterationRed, iterationGreen, iterationBlue); calculateLightColorComponent(lightList.tail, currentSphereIndex, sphereColor,
+			cutPoint, normalInPoint, newRed, newGreen, newBlue)}
+			*/
 
   def core(ray: Ray, recValue: Int, red: Double, green: Double, blue: Double): Color = {
     var oldDistance: Double = Double.MaxValue
@@ -122,6 +131,8 @@ class RayTracer(camera: Camera, sphereList: List[Sphere], lightList: List[Light]
         iterationBlue = newBlue
       }
       Color(fixIfOutbands(iterationRed), fixIfOutbands(iterationGreen), fixIfOutbands(iterationBlue))
+      //val (r, g, b) = calculateLightColorComponent(lightList, currentSphereIndex, sphere.color, cutPoint, normalInPoint, iterationRed, iterationGreen, iterationBlue)
+      //Color(fixIfOutbands(r), fixIfOutbands(b), fixIfOutbands(b))
     } else
       Color(fixIfOutbands(red), fixIfOutbands(green), fixIfOutbands(blue))
   }
