@@ -87,6 +87,17 @@ class RayTracer(camera: Camera, sphereList: List[Sphere], lightList: List[Light]
 		else {val (newRed, newGreen, newBlue) = calculateColorsFromEfects(currentSphereIndex, sphereColor, lightList.head, cutPoint,
 			normalInPoint, iterationRed, iterationGreen, iterationBlue); calculateLightColorComponent(lightList.tail, currentSphereIndex, sphereColor,
 			cutPoint, normalInPoint, newRed, newGreen, newBlue)}
+			
+def calculateShadowColorComponent(ray: Ray, recValue: Int, sphereColor: Color,
+	normalInPoint: Vector, shouldReflectRay: Boolean): (Double, Double, Double) =
+      if (recValue < recurentionDegree && shouldReflectRay) {
+        val nextRecValue = recValue + 1
+        val colorFromReflection: Color = core(Ray(ray.vector reflected (normalInPoint), Color(0, 0, 0)),
+			nextRecValue, 0, 0, 0)
+        (reduceReflectedColor(colorFromReflection.r, nextRecValue),
+        reduceReflectedColor(colorFromReflection.g, nextRecValue),
+        reduceReflectedColor(colorFromReflection.b, nextRecValue))
+      } else (0, 0, 0)
 			*/
 
   def core(ray: Ray, recValue: Int, red: Double, green: Double, blue: Double): Color = {
@@ -122,6 +133,7 @@ class RayTracer(camera: Camera, sphereList: List[Sphere], lightList: List[Light]
         iterationGreen = reduceReflectedColor(colorFromReflection.g, nextRecValue)
         iterationBlue = reduceReflectedColor(colorFromReflection.b, nextRecValue)
       }
+      // val (iterationRed, iterationGreen, iterationBlue) = calculateShadowColorComponent(ray, recValue, sphereColor, normalInPoint, sphere.reflection)
 
       for (light <- lightList) {
         val (newRed, newGreen, newBlue) = calculateColorsFromEfects(currentSphereIndex, sphere.color, light, cutPoint,
