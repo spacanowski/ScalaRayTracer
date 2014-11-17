@@ -99,22 +99,23 @@ class RayTracer(camera: Camera, sphereList: List[Sphere], lightList: List[Light]
         reduceReflectedColor(colorFromReflection.b, nextRecValue))
     } else (0, 0, 0)
 
-  def core(ray: Ray, recValue: Int, red: Double, green: Double, blue: Double): Color = {
-    var oldDistance: Double = Double.MaxValue
-    var currentSphereIndex: Int = Int.MinValue
-
-    for (sphere <- sphereList) {
+  def findCrossingSphere(ray: Ray, spheres: List[Sphere], distance: Double, index: Int): (Double, Int) =
+    if (spheres.isEmpty) (distance, index)
+    else {
+      val sphere = spheres.head
       val b: Double = calculateB(ray.vector.x, camerXPosition, sphere.position.x,
         ray.vector.y, cameraYPosition, sphere.position.y, ray.vector.z, cameraZPosition, sphere.position.z)
       val delta: Double = calcullateDelta(b, calculateC(camerXPosition, sphere.position.x,
         cameraYPosition, sphere.position.y, cameraZPosition, sphere.position.z, sphere.radius))
 
       if (delta >= 0) {
-        val (distance, newSphereIndex) = calculateSphereIndexes(delta, b, sphere, oldDistance, currentSphereIndex)
-        oldDistance = distance
-        currentSphereIndex = newSphereIndex
-      }
+        val (oldDistance, currentSphereIndex) = calculateSphereIndexes(delta, b, sphere, distance, index)
+        findCrossingSphere(ray, spheres.tail, oldDistance, currentSphereIndex)
+      } else findCrossingSphere(ray, spheres.tail, distance, index)
     }
+
+  def core(ray: Ray, recValue: Int, red: Double, green: Double, blue: Double): Color = {
+    val (oldDistance, currentSphereIndex) = findCrossingSphere(ray, sphereList, Double.MaxValue, -1)
 
     if (currentSphereIndex >= 0) {
       val cutPoint: Point = calculateCutPoint(camera.position, ray.vector, oldDistance)
