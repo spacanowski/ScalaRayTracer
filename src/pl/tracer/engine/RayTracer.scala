@@ -79,26 +79,25 @@ class RayTracer(camera: Camera, sphereList: List[Sphere], lightList: List[Light]
       calculatePixelColor(green, light.color.g, sphereColor.g, specular, dotProduct),
       calculatePixelColor(blue, light.color.b, sphereColor.b, specular, dotProduct))
   }
-  
-  /*
-  def calculateLightColorComponent(lightList: List[Light], currentSphereIndex: Int, sphereColor: Color,
-	cutPoint: Point, normalInPoint: Vector, r: Double, g: Double, b: Double): (Double, Double, Double) =
-		if (lightList.isEmpty) (r, g, b)
-		else {val (newRed, newGreen, newBlue) = calculateColorsFromEfects(currentSphereIndex, sphereColor, lightList.head, cutPoint,
-			normalInPoint, iterationRed, iterationGreen, iterationBlue); calculateLightColorComponent(lightList.tail, currentSphereIndex, sphereColor,
-			cutPoint, normalInPoint, newRed, newGreen, newBlue)}
-			
-def calculateShadowColorComponent(ray: Ray, recValue: Int, sphereColor: Color,
-	normalInPoint: Vector, shouldReflectRay: Boolean): (Double, Double, Double) =
-      if (recValue < recurentionDegree && shouldReflectRay) {
-        val nextRecValue = recValue + 1
-        val colorFromReflection: Color = core(Ray(ray.vector reflected (normalInPoint), Color(0, 0, 0)),
-			nextRecValue, 0, 0, 0)
-        (reduceReflectedColor(colorFromReflection.r, nextRecValue),
+
+  def calculateLightColorComponent(lights: List[Light], currentSphereIndex: Int, sphereColor: Color,
+                                   cutPoint: Point, normalInPoint: Vector, r: Double, g: Double, b: Double): (Double, Double, Double) =
+    if (lights.isEmpty) (r, g, b) else {
+      val (newRed, newGreen, newBlue) =
+        calculateColorsFromEfects(currentSphereIndex, sphereColor, lights.head, cutPoint, normalInPoint, r, g, b)
+      calculateLightColorComponent(lights.tail, currentSphereIndex, sphereColor, cutPoint, normalInPoint, newRed, newGreen, newBlue)
+    }
+
+  def calculateShadowColorComponent(ray: Ray, recValue: Int, sphereColor: Color, normalInPoint: Vector,
+                                    shouldReflectRay: Boolean): (Double, Double, Double) =
+    if (recValue < recurentionDegree && shouldReflectRay) {
+      val nextRecValue = recValue + 1
+      val colorFromReflection: Color = core(Ray(ray.vector reflected (normalInPoint), Color(0, 0, 0)),
+        nextRecValue, 0, 0, 0)
+      (reduceReflectedColor(colorFromReflection.r, nextRecValue),
         reduceReflectedColor(colorFromReflection.g, nextRecValue),
         reduceReflectedColor(colorFromReflection.b, nextRecValue))
-      } else (0, 0, 0)
-			*/
+    } else (0, 0, 0)
 
   def core(ray: Ray, recValue: Int, red: Double, green: Double, blue: Double): Color = {
     var oldDistance: Double = Double.MaxValue
@@ -118,33 +117,15 @@ def calculateShadowColorComponent(ray: Ray, recValue: Int, sphereColor: Color,
     }
 
     if (currentSphereIndex >= 0) {
-      var iterationRed: Double = 0
-      var iterationGreen: Double = 0
-      var iterationBlue: Double = 0
       val cutPoint: Point = calculateCutPoint(camera.position, ray.vector, oldDistance)
       val sphere: Sphere = sphereList(currentSphereIndex);
       val normalInPoint: Vector = calculateNormal(cutPoint, sphere)
 
-      if (recValue < recurentionDegree && sphere.reflection) {
-        val nextRecValue = recValue + 1
-        val colorFromReflection: Color = core(Ray(ray.vector reflected (normalInPoint),
-          Color(iterationRed, iterationGreen, iterationBlue)), nextRecValue, iterationRed, iterationGreen, iterationBlue)
-        iterationRed = reduceReflectedColor(colorFromReflection.r, nextRecValue)
-        iterationGreen = reduceReflectedColor(colorFromReflection.g, nextRecValue)
-        iterationBlue = reduceReflectedColor(colorFromReflection.b, nextRecValue)
-      }
-      // val (iterationRed, iterationGreen, iterationBlue) = calculateShadowColorComponent(ray, recValue, sphereColor, normalInPoint, sphere.reflection)
-
-      for (light <- lightList) {
-        val (newRed, newGreen, newBlue) = calculateColorsFromEfects(currentSphereIndex, sphere.color, light, cutPoint,
-          normalInPoint, iterationRed, iterationGreen, iterationBlue)
-        iterationRed = newRed
-        iterationGreen = newGreen
-        iterationBlue = newBlue
-      }
+      val (r, g, b) =
+        calculateShadowColorComponent(ray, recValue, sphere.color, normalInPoint, sphere.reflection)
+      val (iterationRed, iterationGreen, iterationBlue) =
+        calculateLightColorComponent(lightList, currentSphereIndex, sphere.color, cutPoint, normalInPoint, r, g, b)
       Color(fixIfOutbands(iterationRed), fixIfOutbands(iterationGreen), fixIfOutbands(iterationBlue))
-      //val (r, g, b) = calculateLightColorComponent(lightList, currentSphereIndex, sphere.color, cutPoint, normalInPoint, iterationRed, iterationGreen, iterationBlue)
-      //Color(fixIfOutbands(r), fixIfOutbands(b), fixIfOutbands(b))
     } else
       Color(fixIfOutbands(red), fixIfOutbands(green), fixIfOutbands(blue))
   }
