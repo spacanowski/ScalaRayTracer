@@ -1,7 +1,6 @@
 package pl.tracer.app
 
-import scala.math.Pi
-import scala.math.tan
+import scala.math.{Pi, tan}
 
 import pl.tracer.engine._
 import pl.tracer.model._
