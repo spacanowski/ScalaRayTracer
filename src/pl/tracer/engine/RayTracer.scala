@@ -1,8 +1,6 @@
 package pl.tracer.engine
 
-import scala.math.pow
-import scala.math.tan
-import scala.math.sqrt
+import scala.math.{pow, tan, sqrt}
 import pl.tracer.model._
 
 object RayTracer {
