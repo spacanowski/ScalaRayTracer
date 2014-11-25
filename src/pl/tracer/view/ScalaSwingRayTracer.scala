@@ -19,7 +19,7 @@ object ScalaSwingRayTracer extends SimpleSwingApplication {
   }
 }
 class CustomFrame(width: Int, height: Int, antyaliasing: Boolean) extends Panel {
-  val pixels: Array[Pixel] = new RayTracerApp(width, height).makeView
+  val pixels: Seq[Pixel] = new RayTracerApp(width, height).makeView
   override val size: Dimension = new Dimension(if (antyaliasing) width / 2 else width, if (antyaliasing) height / 2 else height)
   override val ignoreRepaint: Boolean = true
 
@@ -50,7 +50,7 @@ class CustomFrame(width: Int, height: Int, antyaliasing: Boolean) extends Panel 
       paintPixels(pixels, g)
   }
 
-  def paintPixels(pixels: Array[Pixel], g: Graphics2D) =
+  def paintPixels(pixels: Seq[Pixel], g: Graphics2D) =
     pixels.foreach { p =>
       {
         g.setColor(new java.awt.Color(p.color.r.toFloat, p.color.g.toFloat, p.color.b.toFloat))

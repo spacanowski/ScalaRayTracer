@@ -7,7 +7,7 @@ object RayTracer {
   def makeVector(point: Point, point1: Point): Vector =
     Vector(point1.x - point.x, point1.y - point.y, point1.z - point.z)
 }
-class RayTracer(camera: Camera, sphereList: List[Sphere], lightList: List[Light], recurentionDegree: Int) {
+class RayTracer(camera: Camera, sphereList: Seq[Sphere], lightList: Seq[Light], recurentionDegree: Int) {
   val shadowReduceFactor: Double = 0.7
   val shadowColorReduce: Double = 0.3
   val specAlfa = 35
@@ -48,7 +48,7 @@ class RayTracer(camera: Camera, sphereList: List[Sphere], lightList: List[Light]
     } else (oldT, which)
   }
 
-  def calcuteSphereShadow(dirSphereLight: Vector, light: Light, sphereList: List[Sphere],
+  def calcuteSphereShadow(dirSphereLight: Vector, light: Light, sphereList: Seq[Sphere],
                           which: Int, red: Double, green: Double, blue: Double): (Double, Double, Double) =
     if (sphereList.isEmpty) (red, green, blue) else if (sphereList.indexOf(sphereList.head) == which)
       calcuteSphereShadow(dirSphereLight, light, sphereList.tail, which, red, green, blue)
@@ -78,7 +78,7 @@ class RayTracer(camera: Camera, sphereList: List[Sphere], lightList: List[Light]
       calculatePixelColor(blue, light.color.b, sphereColor.b, specular, dotProduct))
   }
 
-  def calculateLightColorComponent(lights: List[Light], currentSphereIndex: Int, sphereColor: Color,
+  def calculateLightColorComponent(lights: Seq[Light], currentSphereIndex: Int, sphereColor: Color,
                                    cutPoint: Point, normalInPoint: Vector, r: Double, g: Double, b: Double): (Double, Double, Double) =
     if (lights.isEmpty) (r, g, b) else {
       val (newRed, newGreen, newBlue) =
@@ -97,7 +97,7 @@ class RayTracer(camera: Camera, sphereList: List[Sphere], lightList: List[Light]
         reduceReflectedColor(colorFromReflection.b, nextRecValue))
     } else (0, 0, 0)
 
-  def findCrossingSphere(ray: Ray, spheres: List[Sphere], distance: Double, index: Int): (Double, Int) =
+  def findCrossingSphere(ray: Ray, spheres: Seq[Sphere], distance: Double, index: Int): (Double, Int) =
     if (spheres.isEmpty) (distance, index)
     else {
       val sphere = spheres.head
