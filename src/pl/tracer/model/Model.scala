@@ -1,7 +1,6 @@
 package pl.tracer.model
 
-import scala.math.pow
-import scala.math.sqrt
+import scala.math.{ pow, sqrt }
 
 case class Color(val r: Double, val g: Double, val b: Double)
 
@@ -23,7 +22,7 @@ case class Point(val x: Double, val y: Double, val z: Double) {
 case class Matrix(val v: Vector, val v1: Vector, val v2: Vector) {
   val matrix = Array(Vector(v.x, v1.x, v2.x), Vector(v.y, v1.y, v2.y), Vector(v.z, v1.z, v2.z))
 
-  def productMV(vector: Vector): Vector = Vector(matrix(0) dotProduct(vector), matrix(1) dotProduct(vector), matrix(2) dotProduct(vector))
+  def productMV(vector: Vector): Vector = Vector(matrix(0) dotProduct (vector), matrix(1) dotProduct (vector), matrix(2) dotProduct (vector))
 }
 
 case class Vector(val x: Double, val y: Double, val z: Double) {

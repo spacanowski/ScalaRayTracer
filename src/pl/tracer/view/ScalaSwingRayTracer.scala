@@ -4,8 +4,6 @@ import scala.swing._
 import java.awt.event.ActionListener
 import pl.tracer.model.{ Pixel, Color }
 import pl.tracer.app.RayTracerApp
-import scala.collection.mutable.MutableList
-import scala.collection.immutable.IndexedSeq
 
 object ScalaSwingRayTracer extends SimpleSwingApplication {
   val width: Int = 1200
