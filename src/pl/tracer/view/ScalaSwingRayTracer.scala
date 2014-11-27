@@ -6,9 +6,9 @@ import pl.tracer.model.{ Pixel, Color }
 import pl.tracer.app.RayTracerApp
 
 object ScalaSwingRayTracer extends SimpleSwingApplication {
-  val width: Int = 1200
-  val height: Int = 750
-  val antyaliasing: Boolean = false
+  private val width: Int = 1200
+  private val height: Int = 750
+  private val antyaliasing: Boolean = false
 
   def top = new MainFrame {
     title = "Simple Scala Ray Tracer"
@@ -17,12 +17,12 @@ object ScalaSwingRayTracer extends SimpleSwingApplication {
   }
 }
 class CustomFrame(width: Int, height: Int, antyaliasing: Boolean) extends Panel {
-  val pixels: Seq[Pixel] = pixelList
+  private val pixels: Seq[Pixel] = pixelList
   override val size: Dimension = new Dimension(fixDimensionValue(width), fixDimensionValue(height))
   override val ignoreRepaint: Boolean = true
 
-  def fixDimensionValue(value: Int) = if (antyaliasing) value / 2 else value
-  def pixelList = if (antyaliasing) {
+  private def fixDimensionValue(value: Int) = if (antyaliasing) value / 2 else value
+  private def pixelList = if (antyaliasing) {
     val initialPixels = new RayTracerApp(width, height).makeView
     var anty = Seq[Pixel]()
     for {
@@ -51,7 +51,7 @@ class CustomFrame(width: Int, height: Int, antyaliasing: Boolean) extends Panel 
     paintPixels(pixels, g)
   }
 
-  def paintPixels(pixels: Seq[Pixel], g: Graphics2D) =
+  private def paintPixels(pixels: Seq[Pixel], g: Graphics2D) =
     pixels.foreach { p =>
       {
         g.setColor(new java.awt.Color(p.color.r.toFloat, p.color.g.toFloat, p.color.b.toFloat))

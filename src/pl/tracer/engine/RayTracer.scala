@@ -8,38 +8,38 @@ object RayTracer {
     Vector(point1.x - point.x, point1.y - point.y, point1.z - point.z)
 }
 class RayTracer(camera: Camera, sphereList: Seq[Sphere], lightList: Seq[Light], recurentionDegree: Int) {
-  val shadowReduceFactor: Double = 0.7
-  val shadowColorReduce: Double = 0.3
-  val specAlfa = 35
-  val camerXPosition = camera.position.x
-  val cameraYPosition = camera.position.y
-  val cameraZPosition = camera.position.z
+  private val shadowReduceFactor: Double = 0.7
+  private val shadowColorReduce: Double = 0.3
+  private val specAlfa = 35
+  private val camerXPosition = camera.position.x
+  private val cameraYPosition = camera.position.y
+  private val cameraZPosition = camera.position.z
 
-  def pow2(value: Double): Double = pow(value, 2)
+  private def pow2(value: Double): Double = pow(value, 2)
 
-  def by2(value: Double): Double = value / 2
+  private def by2(value: Double): Double = value / 2
 
-  def calcullateDelta(b: Double, c: Double): Double =
+  private def calcullateDelta(b: Double, c: Double): Double =
     pow2(b) - 4 * c
 
-  def calculateB(xd: Double, x0: Double, xc: Double, yd: Double, y0: Double, yc: Double, zd: Double, z0: Double, zc: Double): Double =
+  private def calculateB(xd: Double, x0: Double, xc: Double, yd: Double, y0: Double, yc: Double, zd: Double, z0: Double, zc: Double): Double =
     2 * (xd * (x0 - xc) + yd * (y0 - yc) + zd * (z0 - zc))
 
-  def calculateC(x0: Double, xc: Double, y0: Double, yc: Double, z0: Double, zc: Double, radius: Double): Double =
+  private def calculateC(x0: Double, xc: Double, y0: Double, yc: Double, z0: Double, zc: Double, radius: Double): Double =
     pow2(x0 - xc) + pow2(y0 - yc) + pow2(z0 - zc) - pow2(radius)
 
-  def calculateCutPoint(pos: Point, dir: Vector, dis: Double): Point =
+  private def calculateCutPoint(pos: Point, dir: Vector, dis: Double): Point =
     Point(pos.x + dir.x * dis, pos.y + dir.y * dis, pos.z + dir.z * dis)
 
-  def calculateNormal(point: Point, sphere: Sphere): Vector =
+  private def calculateNormal(point: Point, sphere: Sphere): Vector =
     Vector((point.x - sphere.position.x) / sphere.radius, (point.y - sphere.position.y) / sphere.radius,
       (point.z - sphere.position.z) / sphere.radius) normalize
 
-  def fixIfOutbands(x: Double): Double = if (x > 1) 1 else if (x < 0) 0 else x
+  private def fixIfOutbands(x: Double): Double = if (x > 1) 1 else if (x < 0) 0 else x
 
-  def calculateCutPoints(deltaSqrt: Double, b: Double): (Double, Double) = (by2(b + deltaSqrt), by2(b - deltaSqrt))
+  private def calculateCutPoints(deltaSqrt: Double, b: Double): (Double, Double) = (by2(b + deltaSqrt), by2(b - deltaSqrt))
 
-  def calculateSphereIndexes(delta: Double, b: Double, sphere: Sphere, oldT: Double, which: Int): (Double, Int) = {
+  private def calculateSphereIndexes(delta: Double, b: Double, sphere: Sphere, oldT: Double, which: Int): (Double, Int) = {
     val (t1, t2) = calculateCutPoints(sqrt(delta), -b)
     if (t1 >= 0 || t2 >= 0) {
       val t = if (t1 < t2) t1 else t2
@@ -48,7 +48,7 @@ class RayTracer(camera: Camera, sphereList: Seq[Sphere], lightList: Seq[Light], 
     } else (oldT, which)
   }
 
-  def calcuteSphereShadow(dirSphereLight: Vector, light: Light, sphereList: Seq[Sphere],
+  private def calcuteSphereShadow(dirSphereLight: Vector, light: Light, sphereList: Seq[Sphere],
                           which: Int, red: Double, green: Double, blue: Double): (Double, Double, Double) =
     if (sphereList.isEmpty) (red, green, blue) else if (sphereList.indexOf(sphereList.head) == which)
       calcuteSphereShadow(dirSphereLight, light, sphereList.tail, which, red, green, blue)
@@ -63,12 +63,12 @@ class RayTracer(camera: Camera, sphereList: Seq[Sphere], lightList: Seq[Light], 
       else (red, green, blue)
     }
 
-  def reduceReflectedColor(color: Double, recValue: Int): Double = color * (shadowReduceFactor * recValue)
+  private def reduceReflectedColor(color: Double, recValue: Int): Double = color * (shadowReduceFactor * recValue)
 
-  def calculatePixelColor(color: Double, lightColor: Double, sphereColor: Double,
+  private def calculatePixelColor(color: Double, lightColor: Double, sphereColor: Double,
                           specular: Double, dotProduct: Double): Double = color + lightColor * (sphereColor + specular) * dotProduct
 
-  def calculateColorsFromEfects(currentSphereIndex: Int, sphereColor: Color, light: Light, cutPoint: Point, normalInPoint: Vector,
+  private def calculateColorsFromEfects(currentSphereIndex: Int, sphereColor: Color, light: Light, cutPoint: Point, normalInPoint: Vector,
                                 red: Double, green: Double, blue: Double): (Double, Double, Double) = {
     val dotProduct: Double = normalInPoint dotProduct (RayTracer.makeVector(cutPoint, light.position) normalize)
     val specular: Double = if (dotProduct > 0) pow(dotProduct, specAlfa) else 0
@@ -78,7 +78,7 @@ class RayTracer(camera: Camera, sphereList: Seq[Sphere], lightList: Seq[Light], 
       calculatePixelColor(blue, light.color.b, sphereColor.b, specular, dotProduct))
   }
 
-  def calculateLightColorComponent(lights: Seq[Light], currentSphereIndex: Int, sphereColor: Color,
+  private def calculateLightColorComponent(lights: Seq[Light], currentSphereIndex: Int, sphereColor: Color,
                                    cutPoint: Point, normalInPoint: Vector, r: Double, g: Double, b: Double): (Double, Double, Double) =
     if (lights.isEmpty) (r, g, b) else {
       val (newRed, newGreen, newBlue) =
@@ -86,7 +86,7 @@ class RayTracer(camera: Camera, sphereList: Seq[Sphere], lightList: Seq[Light], 
       calculateLightColorComponent(lights.tail, currentSphereIndex, sphereColor, cutPoint, normalInPoint, newRed, newGreen, newBlue)
     }
 
-  def calculateShadowColorComponent(ray: Ray, recValue: Int, sphereColor: Color, normalInPoint: Vector,
+  private def calculateShadowColorComponent(ray: Ray, recValue: Int, sphereColor: Color, normalInPoint: Vector,
                                     shouldReflectRay: Boolean): (Double, Double, Double) =
     if (recValue < recurentionDegree && shouldReflectRay) {
       val nextRecValue = recValue + 1
@@ -97,7 +97,7 @@ class RayTracer(camera: Camera, sphereList: Seq[Sphere], lightList: Seq[Light], 
         reduceReflectedColor(colorFromReflection.b, nextRecValue))
     } else (0, 0, 0)
 
-  def findCrossingSphere(ray: Ray, spheres: Seq[Sphere], distance: Double, index: Int): (Double, Int) =
+  private def findCrossingSphere(ray: Ray, spheres: Seq[Sphere], distance: Double, index: Int): (Double, Int) =
     if (spheres.isEmpty) (distance, index)
     else {
       val sphere = spheres.head
